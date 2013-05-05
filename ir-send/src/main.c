@@ -15,7 +15,7 @@ int main() {
     
 	unsigned int b = 0;
     
-	int ircode[16] = {1,1,0,1,0,1,0,0,1,0,1,0,0,1,0,1};
+	int ircode[14] = {1,1,0,1,0,1,0,0,1,0,1,0,0,1};
 
 	int n = 0;
     
@@ -25,7 +25,7 @@ int main() {
 
 
 
-	for ( n = 0 ; n < 16 ; n++ ) {
+	for ( n = 0 ; n < 14 ; n++ ) {
         
 		b = ircode[n];
         
@@ -51,10 +51,10 @@ void pulse(){
 	for( i=0 ; i < 32 ; i++){
 
 		setHigh();
-		usleep(27.78);
+		usleep(7);
     
 		setLow();
-		usleep(27.78);
+		usleep(21);
 
 	}
 
