@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "gpio.h"
 
-#define HBL 500000 
+#define HBL 250000 
 
 void pulse();
 void sendHigh();
@@ -23,8 +23,6 @@ int main() {
 	DirectionGpio( Gpio11, GpioOut );
 	SetValueGpio( Gpio11, GpioClear );
 
-
-
 	for ( n = 0 ; n < 16 ; n++ ) {
         
 		b = ircode[n];
@@ -33,7 +31,7 @@ int main() {
             
 			sendHigh();
             
-		} else if (b == 0){
+		} else if ( b == 0 ) {
             
 			sendLow();
 		}	
@@ -44,11 +42,11 @@ int main() {
 	return 0;    
 }
 
-void pulse(){
-  
+void pulse()
+{  
    	int i = 0;
  
-	for( i=0 ; i < 32 ; i++){
+	for( i=0 ; i < 32 ; i++) {
 
 		setHigh();
 		usleep(27.78);
@@ -57,24 +55,23 @@ void pulse(){
 		usleep(27.78);
 
 	}
-
 }
 
-void sendHigh(){
-    
+void sendHigh()
+{    
 	setLow();
-	usleep(HBL);
+	usleep( HBL );
    
 	pulse();
     
 }
 
-void sendLow(){
+void sendLow()
+{
 	pulse();
     
 	setLow();
-	usleep(HBL);
-    
+	usleep( HBL );    
 }
 
 

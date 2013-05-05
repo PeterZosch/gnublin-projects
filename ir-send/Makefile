@@ -8,5 +8,5 @@ $(NAME).bin:
 		gcc -Wall $(SRCPATH)*.c  -o $@
 
 clean:
-		rm -f $(NAME)
+		rm -f $(NAME).bin
 
