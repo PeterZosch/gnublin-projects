@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "gpio.h"
+//#include "clockout.h"
+
+int main()
+{
+    int valueButton = -1; //GPIO14
+//    int valueRed = -1;
+    int valuegreen = -1; //GPIO11
+//    int valueBlue = -1;
+
+
+	MakeGpio( Gpio11 );
+	MakeGpio( Gpio14 );
+
+//    DirectionGpio( Gpio03, GpioOut );
+    DirectionGpio( Gpio11, GpioOut );
+    DirectionGpio( Gpio14, GpioIn );
+
+//    SetValueGpio( Gpio03, GpioClear );
+    SetValueGpio( Gpio11, GpioClear );
+	
+	for ( ; ; ) {
+
+		valueButton = GetGpioValue( Gpio14 );
+
+		if ( valueButton == 1 ) {
+		
+			SetValueGpio( Gpio11, GpioSet );
+
+		} else {
+
+			SetValueGpio( Gpio11, GpioClear );
+
+		}	
+
+	}
+
+	return 0;
+
+}
