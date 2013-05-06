@@ -11,7 +11,7 @@ void IRfreqGen()
 	double sec = 0; 
 	double frq = 0.0;
 	int long msek = 0;
-	
+
 	system( "clear" );
 
 	MakeGpio( Gpio11 );
@@ -32,13 +32,13 @@ void IRfreqGen()
 	msek = ( int long )sec;
 
 	for ( ; ; ) {	
-
+		
 		SetValueGpio( Gpio11, GpioSet );
 		usleep(msek);
 
 		SetValueGpio( Gpio11, GpioClear );
 		usleep(msek);
-
+	
 	}
 
 }

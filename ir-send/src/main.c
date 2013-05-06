@@ -27,8 +27,6 @@ int main() {
 	DirectionGpio( Gpio11, GpioOut );
 	SetValueGpio( Gpio11, GpioClear );
 
-    t = clock();
-	
 	system( "clear" );
 	printf( "5 Sekunden bis zur sende Frequenz\n");
 	usleep( 5000000 );
@@ -36,6 +34,8 @@ int main() {
 
 	do {
 		
+    	t = clock();
+
 		for ( n = 0 ; n < 14 ; n++ ) {
 
 			b = ircode[n];

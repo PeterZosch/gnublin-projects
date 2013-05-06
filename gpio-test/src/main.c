@@ -5,6 +5,7 @@
 #include "LEDkippstufe.h"
 #include "LEDblinkmode.h"
 #include "IRfreqGen.h"
+#include "IRioCheck.h"
 
 
 int main()
@@ -20,10 +21,11 @@ int main()
         printf("(2) LED Kippstufe mit Schalter\n");
         printf("(3) LED blkinmodus mit Logik\n");
         printf("(4) IR-LED Test mit einstellbarer Frequenz\n");
+        printf("(5) IR Messung der Set and Clear Zeit\n");
         printf("> ");
 
 //        fpurge(stdin);
-        scanf( "%c", &key );
+        do { scanf( "%c", &key ); } while ( getchar () != '\n' );
         
         switch ( key ) {
           
@@ -37,6 +39,9 @@ int main()
             			break;
 	
 			case'4':	IRfreqGen();
+            			break;
+
+			case'5':	IRioCheck();
             			break;
         }
         
