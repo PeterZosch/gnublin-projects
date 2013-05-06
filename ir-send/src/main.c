@@ -4,7 +4,7 @@
 #include <time.h>
 #include "gpio.h"
 
-#define HBL 250000 
+#define HBL 888 
 
 void pulse();
 void sendHigh();
@@ -16,37 +16,51 @@ int main() {
     
 	unsigned int b = 0;
     
-	int ircode[14] = {1,1,0,1,0,1,0,0,1,0,1,0,0,1};
+	int ircode[14] = {1,1,0,0,0,0,0,1,0,0,1,1,0,0};
 
 	int n = 0;
+    char key;
     
+	clock_t t;
+
 	MakeGpio( Gpio11 );
 	DirectionGpio( Gpio11, GpioOut );
 	SetValueGpio( Gpio11, GpioClear );
 
-	clock_t t;
+    t = clock();
+	
+	system( "clear" );
+	printf( "5 Sekunden bis zur sende Frequenz\n");
+	usleep( 5000000 );
+	printf( "ZOSH!\n" );
 
-	t = clock();
+	do {
+		
+		for ( n = 0 ; n < 14 ; n++ ) {
 
-	for ( n = 0 ; n < 14 ; n++ ) {
+			b = ircode[n];
         
-		b = ircode[n];
-        
-		if (b == 1){
+			if (b == 1){
             
-			sendHigh();
+				sendHigh();
             
-		} else if ( b == 0 ) {
+			} else if ( b == 0 ) {
             
-			sendLow();
-		}	
-	}
-
-	t = clock() - t ;
-
-
-	printf("Fertig in %f sec" , ((float)t)/CLOCKS_PER_SEC );
-
+				sendLow();
+			}	
+		}
+	
+		t = clock() - t;
+			
+		system( "clear" );
+	    printf("Fertig in %f Sekunden\n\n" , ((float)t)/CLOCKS_PER_SEC );
+		printf("Nocheinmal senden? (j/n)\n");
+		printf(">");
+		key = getchar();
+		usleep(1000000);
+	
+	} while ( key != 'n' );
+			
 	return 0;    
 }
 
