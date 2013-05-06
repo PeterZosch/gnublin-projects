@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <time.h>
 #include "gpio.h"
 
 #define HBL 250000 
@@ -23,6 +24,9 @@ int main() {
 	DirectionGpio( Gpio11, GpioOut );
 	SetValueGpio( Gpio11, GpioClear );
 
+	clock_t t;
+
+	t = clock();
 
 	for ( n = 0 ; n < 14 ; n++ ) {
         
@@ -38,7 +42,10 @@ int main() {
 		}	
 	}
 
-	printf("Fertig !");
+	t = clock() - t ;
+
+
+	printf("Fertig in %f sec" , ((float)t)/CLOCKS_PER_SEC );
 
 	return 0;    
 }
