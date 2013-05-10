@@ -1,109 +1,229 @@
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
-#include <time.h>
-#include "gpio.h"
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
 
-#define HBL 888 
+/* LPC3131 UM chapter 15 */
+#define IOCONFIG    0x13003000
+#define FBLO_GPIO   0x1C0  /* GPIO functional block */
 
-void pulse();
-void sendHigh();
-void sendLow();
-void setHigh();
-void setLow();
+/* offset in GPIO functional block  */
+#define PINS        0x00
+#define MODE0       0x10  
+#define MODE0_SET   0x14
+#define MODE0_RESET 0x18
+#define MODE1       0x20  
+#define MODE1_SET   0x24
+#define MODE1_RESET 0x28
 
-int main() {
-    
-	unsigned int b = 0;
-    
-	int ircode[14] = {1,1,0,0,0,0,0,1,0,0,1,1,0,0};
+/* !! Warning !!
+ * GPIO4 (1 << 4) is only as INPUT available.
+ * Setting the MODE0-Register for Pin 4 to 1 will cause a crash of the system!
+ */
+#define GPIO3   (1 << 5)
 
-	int n = 0;
-    char key;
-    
-	clock_t t;
+#define LED        GPIO3
 
-	MakeGpio( Gpio11 );
-	DirectionGpio( Gpio11, GpioOut );
-	SetValueGpio( Gpio11, GpioClear );
+void byebye(void);
 
-	system( "clear" );
-	printf( "5 Sekunden bis zur sende Frequenz\n");
-	usleep( 5000000 );
-	printf( "ZOSH!\n" );
+char *mymem;
 
-	do {
-		
-    	t = clock();
+int main()
+{
+	int i = 0;
+    int mem_fd;
+    atexit(byebye);
+    if ((mem_fd = open("/dev/mem", O_RDWR)) < 0) {
+        printf("can't open /dev/mem \n");
+        exit(-1);
+    }
+    printf("mem_fd = %d\n", mem_fd);
+    printf("getpagesize() -> %d\n", getpagesize());
+    mymem = mmap(0, 
+                 getpagesize(), 
+                 PROT_READ|PROT_WRITE, 
+                 MAP_SHARED, 
+                 mem_fd, 
+                 IOCONFIG);
+    if (mymem == MAP_FAILED) {
+        printf("mmap error %d\n", errno);
+        exit(-1);
+    }
+    else {
+        printf("mymem = 0x%x\n", (unsigned int)mymem);
+    }
+    *(unsigned int *)(mymem + FBLO_GPIO + MODE1_SET) = LED;
 
-		for ( n = 0 ; n < 14 ; n++ ) {
+    for ( i = 0 ; i <= 1 ; i++ ) {
 
-			b = ircode[n];
+       	usleep(500000);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(9000);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(4500);
+       
+		*(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(1500);
         
-			if (b == 1){
-            
-				sendHigh();
-            
-			} else if ( b == 0 ) {
-            
-				sendLow();
-			}	
-		}
-	
-		t = clock() - t;
-			
-		system( "clear" );
-	    printf("Fertig in %f Sekunden\n\n" , ((float)t)/CLOCKS_PER_SEC );
-		printf("Nocheinmal senden? (j/n)\n");
-		printf(">");
-		key = getchar();
-		usleep(1000000);
-	
-	} while ( key != 'n' );
-			
-	return 0;    
+		*(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(1500);
+        
+		*(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(1500);
+		*(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(1500);
+		*(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(1500);
+		
+		*(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(1500);
+
+		*(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(1500);
+
+		*(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(500);
+		*(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(500);
+
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(1500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(1500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(1500);
+
+		*(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(1500);
+
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(1500);
+		
+		*(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(500);
+		*(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(500);
+
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(1500);
+        
+		*(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(500);
+
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(1500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(1500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(1500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(1500);
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_SET) = LED;
+       	usleep(500);
+
+        *(unsigned int *)(mymem + FBLO_GPIO + MODE0_RESET) = LED;
+        usleep(1000000);
+
+    }
+    return 0;
 }
 
-void pulse()
-{  
-   	int i = 0;
- 
-	for( i=0 ; i < 32 ; i++) {
-
-		setHigh();
-		usleep(7);
-    
-		setLow();
-		usleep(21);
-
-	}
-}
-
-void sendHigh()
-{    
-	setLow();
-	usleep( HBL );
-   
-	pulse();
-    
-}
-
-void sendLow()
+void byebye()
 {
-	pulse();
-    
-	setLow();
-	usleep( HBL );    
-}
-
-
-void setHigh()
-{
-	SetValueGpio( Gpio11, GpioSet );
-    
-}
-
-void setLow()
-{
-	SetValueGpio( Gpio11, GpioClear );    
+    printf("cleaning up\n");
+    /* when not explicitly given, munmap() will automatically
+       be called on exit (see 'man munmap') */
+    munmap(mymem, getpagesize()); 
 }

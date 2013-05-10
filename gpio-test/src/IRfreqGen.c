@@ -29,7 +29,7 @@ void IRfreqGen()
 
 	sek = ( 1 / frq );
  	sec = ( sek * 1000000 );
-	msek = ( int long )sec;
+	msek = ((( int long )sec) / 2);
 
 	for ( ; ; ) {	
 		
