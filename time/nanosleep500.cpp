@@ -6,7 +6,7 @@ using namespace std;
 
 int main()
 {
-	int microsec = 500; // length of time to sleep, in miliseconds
+	int microsec = 50; // length of time to sleep, in miliseconds
 	struct timespec req = {0};
 	req.tv_sec = 0;
 	req.tv_nsec = microsec * 1000L;
