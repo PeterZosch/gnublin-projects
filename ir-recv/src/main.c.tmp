@@ -1,0 +1,76 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
+/* #include <asm/delay.h> */
+
+/* LPC3131 UM chapter 15 */
+#define IOCONFIG    0x13003000
+#define FBLO_GPIO   0x1C0  /* GPIO functional block */
+
+/* offset in GPIO functional block  */
+#define PINS        0x00
+#define MODE0       0x10  
+#define MODE0_SET   0x14
+#define MODE0_RESET 0x18
+#define MODE1       0x20  
+#define MODE1_SET   0x24
+#define MODE1_RESET 0x28
+
+/* !! Warning !!
+ * GPIO4 (1 << 4) is only as INPUT available.
+ * Setting the MODE0-Register for Pin 4 to 1 will cause a crash of the system!
+ */
+#define GPIO3   (1 << 5)
+
+#define LED        GPIO3
+
+void byebye(void);
+
+char *mymem;
+
+int main()
+{
+    int mem_fd;
+    atexit(byebye);
+    if ((mem_fd = open("/dev/mem", O_RDWR)) < 0) {
+        printf("can't open /dev/mem \n");
+        exit(-1);
+    }
+    printf("mem_fd = %d\n", mem_fd);
+    printf("getpagesize() -> %d\n", getpagesize());
+    mymem = mmap(0, 
+                 getpagesize(), 
+                 PROT_READ|PROT_WRITE, 
+                 MAP_SHARED, 
+                 mem_fd, 
+                 0x13003000);
+    if (mymem == MAP_FAILED) {
+        printf("mmap error %d\n", errno);
+        exit(-1);
+    }
+    else {
+        printf("mymem = 0x%x\n", (unsigned int)mymem);
+    }
+    *(unsigned int *)(mymem + 0x1C0 + MODE1_SET) = LED;
+
+    while ( 1 ) {
+        *(unsigned int *)(mymem + 0x1C0 + MODE0_SET) = ( 1 << 5 );
+        sleep(1);
+        *(unsigned int *)(mymem + 0x1C0 + MODE0_RESET) = ( 1 << 5 );
+        sleep(1);
+    }
+    return 0;
+}
+
+void byebye()
+{
+    printf("cleaning up\n");
+    /* when not explicitly given, munmap() will automatically
+       be called on exit (see 'man munmap') */
+    munmap(mymem, getpagesize()); 
+}
