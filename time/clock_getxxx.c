@@ -5,7 +5,7 @@
  
 int main()
 {
-	int microsec = 100;
+	int microsec = 500;
     struct timespec ts_res, ts_start, ts_end, req;
     clock_getres(CLOCK_MONOTONIC, &ts_res);
 
@@ -23,7 +23,7 @@ int main()
  
 	    clock_gettime(CLOCK_MONOTONIC, &ts_end);
  
-   		 printf("Elapsed time: %luus\n", (ts_end.tv_sec - ts_start.tv_sec) * 1000000000 + ts_end.tv_nsec - ts_start.tv_nsec);
+   		 printf("Elapsed time: %luns\n", (ts_end.tv_sec - ts_start.tv_sec) * 1000000000 + ts_end.tv_nsec - ts_start.tv_nsec);
 
 //	}
  	
