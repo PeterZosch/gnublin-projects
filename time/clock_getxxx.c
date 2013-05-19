@@ -5,12 +5,10 @@
  
 int main()
 {
-	int microsec = 500;
-    struct timespec ts_res, ts_start, ts_end, req;
+    struct timespec ts_res, ts_start, ts_end;
     clock_getres(CLOCK_MONOTONIC, &ts_res);
 
-	req.tv_sec = 0;
-	req.tv_nsec = microsec * 1000L;
+	struct timespec ts = { .tv_sec = 0, .tv_nsec = 500000 };
 
     printf("Resolution: %lus and %lins\n", ts_res.tv_sec, ts_res.tv_nsec);
  
@@ -18,8 +16,7 @@ int main()
 
 	    clock_gettime(CLOCK_MONOTONIC, &ts_start);
  
-//		usleep(500);
-		nanosleep( &req, (struct timespec *)NULL);
+		clock_nanosleep( CLOCK_MONOTONIC, 0, &ts, NULL );
  
 	    clock_gettime(CLOCK_MONOTONIC, &ts_end);
  
