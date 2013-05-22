@@ -1,13 +1,24 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <sched.h>
 
 #define nano	500000 
 #define micro	500
 
 int main()
 {
+
+
+	struct sched_param param;
+
+	param.sched_priority = 99;
+	if (sched_setscheduler(0, SCHED_FIFO, & param) != 0) {
+    	perror("sched_setscheduler");
+		exit(EXIT_FAILURE);  
+	}
     struct timespec ts_res, ts_start, ts_end;
     clock_getres(CLOCK_MONOTONIC, &ts_res);
 
@@ -33,7 +44,7 @@ int main()
  
    		printf("%luns\n", (ts_end.tv_sec - ts_start.tv_sec) * 1000000000 + ts_end.tv_nsec - ts_start.tv_nsec);
 
-
+while (1) {
 	//clock_nanosleep zeitmessung
 	printf("\nMessung mit clock_nanosleep:\n");
 
@@ -42,7 +53,7 @@ int main()
 	    clock_gettime(CLOCK_MONOTONIC, &ts_end);
  
    		printf("%luns\n", (ts_end.tv_sec - ts_start.tv_sec) * 1000000000 + ts_end.tv_nsec - ts_start.tv_nsec);
-
+	}
  	
     return 0;
 }
