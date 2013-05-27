@@ -1,16 +1,12 @@
+obj-m += irmod.o
 
-ARCH		?= arm
-CROSS_COMPILE	?= arm-linux-gnueabi-
-export ARCH CROSS_COMPILE
+KDIR := /root/linux-2.6.33-lpc313x/
 
-obj-m += gpio-mod.o
+.PHONY: all clean
 
-KDIR := /home/theito/tmp/lib/modules/2.6.33-rt8-g3b80ac1/build
+all:
 
-KBUILD_TARGETS	:= clean help modules modules_install
+	make -C $(KDIR) M=$(shell pwd) modules
 
-.PHONY: all $(KBUILD_TARGETS)
-all: modules
-
-$(KBUILD_TARGETS):
-	$(MAKE) -C $(KDIR) M=$(shell pwd) $@
+clean:
+	make -C $(KDIR) M=$(shell pwd) clean
