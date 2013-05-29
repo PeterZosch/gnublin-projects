@@ -1,6 +1,6 @@
 obj-m += irmod.o
 
-KDIR := /root/linux-2.6.33-lpc313x/
+KDIR := /usr/src/linux-2.6.33-lpc313x/
 
 .PHONY: all clean
 
