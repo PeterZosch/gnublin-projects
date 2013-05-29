@@ -2,3 +2,7 @@
 *.txt
 *.bin
 *.csv
+*.order
+*.ko
+*.symvers
+*.mod.*
