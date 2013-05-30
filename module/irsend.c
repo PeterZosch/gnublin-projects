@@ -1,15 +1,28 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <fcntl.h>		/* open */
 #include <unistd.h>		/* exit */
 #include <sys/ioctl.h>		/* ioctl */
+#include <sched.h>
 
 #define DEVICE_FILE_NAME "/dev/ir2gpio"
+#define N 32
 
-main()
+int main()
 {
 	int file_desc, ret_val, i;
 
-	int code[34] = {0,1,0,1,0,1,1,1,1,0,1,0,1,0,0,0,0,1,0,0,1,1,1,0,0,0,1,1,0,0,0,1,1,1,};
+//int code[32] = {0,1,0,1,1,1,1,0,1,0,1,0,0,0,0,1,0,0,1,1,1,0,0,0,1,1,0,0,0,1,1,1};
+
+	int hexcode = 0x5EA138C7;
+
+	struct sched_param param;                                                   
+                                                                                
+    param.sched_priority = 99;                                                  
+    if (sched_setscheduler(0, SCHED_FIFO, & param) != 0) {                      
+        perror("sched_setscheduler");                                           
+        exit(EXIT_FAILURE);                                                     
+    }                                     
 	
 	i = 1;	
 
@@ -20,28 +33,27 @@ main()
 		exit(-1);
 	}
 
-	ret_val = ioctl(file_desc, 42, 9000);
+	ret_val = ioctl(file_desc, 42, hexcode );
 
-	ret_val = ioctl(file_desc, 69, 4500);
+/*	ret_val = ioctl(file_desc, 69, 4500);
 	
-	for( i = 0 ; i <= 33 ; i++) {
+	for( i = 0 ; i <= 31 ; i++) {
 	
-		if ( code[i] == 0 ) {
+		if ( code[i] == 0 ) { 
 			
-			ret_val = ioctl(file_desc, 42, 560);
+			ret_val = ioctl(file_desc, 42, 510);
 
 			ret_val = ioctl(file_desc, 69, 560);
 
-		} else {
+		} else { 
 
-			ret_val = ioctl(file_desc, 42, 560);
+			ret_val = ioctl(file_desc, 42, 510);
 
 			ret_val = ioctl(file_desc, 69, 1690);
 		}
 
 	}
-		
-
+*/
 	if (ret_val < 0) {
 		printf("ioctl_set_msg failed:%d\n", ret_val);
 		exit(-1);

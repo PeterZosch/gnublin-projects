@@ -14,55 +14,89 @@
 #define DEVICE_NAME "ir2gpio"
 #define MAJOR_NUM 240
 
-static int pulse_send( unsigned int lenght );
-static void space_send( unsigned int slenght );
+
+static void ircode_out( unsigned long hexcode );
+static int pulse_send( unsigned long lenght );
+static void space_send( unsigned long slenght );
 static int device_ioctl( struct inode *inode, struct file *file,
                         unsigned int cmd, unsigned long ioctl_param);
 
-static int pulse_send( unsigned int lenght )
+static int pulse_send( unsigned long lenght )
 {
 	int flag;
     unsigned long t, act;
-
-    t = PULSE / 2;
+    
+	t = PULSE / 2;
     flag = 1;
 	act = 0;
 
-    while ( act <= lenght )
-    {
-        gpio_set_value( GPIO_GPIO11, flag );
-        udelay(t);
+   	while ( act <= lenght ) {
 
+        gpio_set_value( GPIO_GPIO11, flag );
+	
+   	  	udelay( t );
+		
 		act += t;
 
-        flag = !flag;
-    }
+       	flag = !flag;
+	}
 	
+    gpio_set_value( GPIO_GPIO11, 0 );
 	return 0;
 
 }
 
 
-static void space_send( unsigned int slenght )
+static void space_send( unsigned long slenght )
 {
 
 	gpio_set_value( GPIO_GPIO11, 0 );
-
-	udelay(slenght);
+	
+		udelay( slenght );
 
 }
 
+static void ircode_out( unsigned long hexcode )
+{
+	int i = 0;
+	int binary = 0;
+    unsigned long cpuflags;
+	spinlock_t spinl;
+	
+	spin_lock_irqsave( &spinl , cpuflags );
+
+	pulse_send( 9000 );
+	space_send( 4500 );
+
+ 	for ( i = 31 ; i >= 0 ; i-- ) {
+
+        binary = ( hexcode >> i ) & 1;
+
+		if ( binary ) {
+			
+			pulse_send( 510 );
+			space_send( 1690 );
+
+		} else {
+
+			pulse_send( 510 );
+			space_send( 560 );
+		}
+
+	}
+
+	spin_unlock_irqrestore( &spinl , cpuflags );
+}
+
+
 static int device_ioctl( struct inode *inode, struct file *file,
-						unsigned int cmd, unsigned long ioctl_param)
+					unsigned int cmd, unsigned long ioctl_param)
 {
 
 	switch( cmd )
 	{
 		case 42:
-			pulse_send( ioctl_param );
-			break;
-		case 69:
-			space_send( ioctl_param );
+			ircode_out( ioctl_param );
 			break;
 		default:
 			printk( KERN_INFO " unknown ioctl commando.\n" );
