@@ -48,7 +48,7 @@ int main( int argc, char *argv[] )
 	
 	} else {
 	
-      printf("\n%s Command not found\n", argv[1]);
+      printf("%s: Command not found\n", argv[1]);
       return EXIT_FAILURE;
 	}
 
