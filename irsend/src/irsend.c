@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <fcntl.h>		/* open */
 #include <unistd.h>		/* exit */
@@ -8,20 +9,49 @@
 #define DEVICE_FILE_NAME "/dev/ir2gpio"
 #define N 32
 
-int main()
+#define KEY_MUTE 		0x000818E7
+#define KEY_PROGUP 		0x000808F7
+#define KEY_PROGDOWN 	0x0008F00F
+
+int main( int argc, char *argv[] )
 {
 	int file_desc, ret_val;
 
-	int hexcode = 0x00818E7;
+	int hexcode = 0x00;
 
 	struct sched_param param;                                                   
                                                                                 
     param.sched_priority = 99;                                                  
     if (sched_setscheduler(0, SCHED_FIFO, & param) != 0) {                      
         perror("sched_setscheduler");                                           
-        exit(EXIT_FAILURE);                                                     
+        return EXIT_FAILURE;                                                     
     }                                     
 	
+   	if ( argc < 2 ) {
+      printf("Benötige mindesten 1 Argument!\n");
+      printf("Aufruf: %s <KEY_BUTTON>...\n", *argv);
+      return EXIT_FAILURE;
+   	}
+	
+
+	if ( (strcmp( argv[1], "KEY_MUTE" )) == 0 ) {
+	
+		hexcode = KEY_MUTE;
+	
+	} else if ( (strcmp( argv[1], "KEY_PROGUP" )) == 0 ) {
+
+		hexcode = KEY_PROGUP;
+
+	} else if ( (strcmp( argv[1], "KEY_PROGDOWN" )) == 0 ) {
+	
+		hexcode = KEY_PROGDOWN;
+	
+	} else {
+	
+      printf("\n%s Command not found\n", argv[1]);
+      return EXIT_FAILURE;
+	}
+
 	file_desc = open(DEVICE_FILE_NAME, 0);
 
 	if (file_desc < 0) {
