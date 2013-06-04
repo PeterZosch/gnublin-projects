@@ -19,18 +19,23 @@ static void ircode_out( unsigned long hexcode );
 static int pulse_send( unsigned long lenght );
 static void space_send( unsigned long slenght );
 static int device_ioctl( struct inode *inode, struct file *file,
-                        unsigned int cmd, unsigned long ioctl_param);
+                         unsigned int cmd, unsigned long ioctl_param);
 
 static int pulse_send( unsigned long lenght )
 {
 	int flag;
     unsigned long t, act;
-    
+
 	t = PULSE / 2;
     flag = 1;
 	act = 0;
 
-   	while ( act <= lenght ) {
+/* ca 1us zusaetzliche Zeit bedingt durch while schleife
+   daher wird mit lenght/t die haeufigkeit der zu durchlaufenden 
+   while-schleife ermittelt und von der eigentlichen pulse zeit
+   abgezogen */
+
+   	while ( act <= ( lenght - (lenght / t) ) ) {
 
         gpio_set_value( GPIO_GPIO11, flag );
 	
@@ -41,7 +46,6 @@ static int pulse_send( unsigned long lenght )
        	flag = !flag;
 	}
 	
-    gpio_set_value( GPIO_GPIO11, 0 );
 	return 0;
 
 }
@@ -51,8 +55,16 @@ static void space_send( unsigned long slenght )
 {
 
 	gpio_set_value( GPIO_GPIO11, 0 );
+
+	if ( slenght < 2000 ) {	
 	
 		udelay( slenght );
+
+	} else {
+
+		mdelay( (slenght / 1000) );
+	
+	}
 
 }
 
@@ -62,7 +74,7 @@ static void ircode_out( unsigned long hexcode )
 	int binary = 0;
     unsigned long cpuflags;
 	spinlock_t spinl;
-	
+
 	spin_lock_irqsave( &spinl , cpuflags );
 
 	pulse_send( 9000 );
@@ -73,24 +85,38 @@ static void ircode_out( unsigned long hexcode )
         binary = ( hexcode >> i ) & 1;
 
 		if ( binary ) {
-			
-			pulse_send( 510 );
+		
+		//binaere 1 modelieren
+	
+			pulse_send( 560 );
 			space_send( 1690 );
 
 		} else {
 
-			pulse_send( 510 );
+		//binaere 0 modelieren
+
+			pulse_send( 560 );
 			space_send( 560 );
 		}
 
 	}
+	
+	pulse_send( 560 );
+/*
+	space_send( 47841 );
 
+	pulse_send( 9000 );
+	space_send( 2200 );
+	
+	pulse_send( 550 );
+*/	
 	spin_unlock_irqrestore( &spinl , cpuflags );
+
 }
 
 
 static int device_ioctl( struct inode *inode, struct file *file,
-					unsigned int cmd, unsigned long ioctl_param)
+					     unsigned int cmd, unsigned long ioctl_param )
 {
 
 	switch( cmd )
