@@ -1,5 +1,5 @@
 
-NAME = irSend
+NAME = irsend
 SRCPATH = src/
 
  
