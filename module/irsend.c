@@ -10,11 +10,9 @@
 
 int main()
 {
-	int file_desc, ret_val, i;
+	int file_desc, ret_val;
 
-//int code[32] = {0,1,0,1,1,1,1,0,1,0,1,0,0,0,0,1,0,0,1,1,1,0,0,0,1,1,0,0,0,1,1,1};
-
-	int hexcode = 0x5EA138C7;
+	int hexcode = 0x00818E7;
 
 	struct sched_param param;                                                   
                                                                                 
@@ -24,8 +22,6 @@ int main()
         exit(EXIT_FAILURE);                                                     
     }                                     
 	
-	i = 1;	
-
 	file_desc = open(DEVICE_FILE_NAME, 0);
 
 	if (file_desc < 0) {
@@ -35,25 +31,6 @@ int main()
 
 	ret_val = ioctl(file_desc, 42, hexcode );
 
-/*	ret_val = ioctl(file_desc, 69, 4500);
-	
-	for( i = 0 ; i <= 31 ; i++) {
-	
-		if ( code[i] == 0 ) { 
-			
-			ret_val = ioctl(file_desc, 42, 510);
-
-			ret_val = ioctl(file_desc, 69, 560);
-
-		} else { 
-
-			ret_val = ioctl(file_desc, 42, 510);
-
-			ret_val = ioctl(file_desc, 69, 1690);
-		}
-
-	}
-*/
 	if (ret_val < 0) {
 		printf("ioctl_set_msg failed:%d\n", ret_val);
 		exit(-1);
