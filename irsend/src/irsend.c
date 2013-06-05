@@ -12,6 +12,9 @@
 #define KEY_MUTE 		0x000818E7
 #define KEY_PROGUP 		0x000808F7
 #define KEY_PROGDOWN 	0x0008F00F
+#define KEY_SIX		 	0x000810EF
+#define KEY_EIGHT	 	0x000850AF
+#define KEY_BACK	 	0x0008827D
 
 int main( int argc, char *argv[] )
 {
@@ -45,6 +48,18 @@ int main( int argc, char *argv[] )
 	} else if ( (strcmp( argv[1], "KEY_PROGDOWN" )) == 0 ) {
 	
 		hexcode = KEY_PROGDOWN;
+	
+	} else if ( (strcmp( argv[1], "KEY_SIX" )) == 0 ) {
+	
+		hexcode = KEY_SIX;
+	
+	} else if ( (strcmp( argv[1], "KEY_EIGHT" )) == 0 ) {
+	
+		hexcode = KEY_EIGHT;
+	
+	} else if ( (strcmp( argv[1], "KEY_BACK" )) == 0 ) {
+	
+		hexcode = KEY_BACK;
 	
 	} else {
 	
