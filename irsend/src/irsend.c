@@ -5,22 +5,25 @@
 #include <unistd.h>		/* exit */
 #include <sys/ioctl.h>		/* ioctl */
 #include <sched.h>
+#include "parser.h"
 
 #define DEVICE_FILE_NAME "/dev/ir2gpio"
 #define N 32
 
-#define KEY_MUTE 		0x000818E7
-#define KEY_PROGUP 		0x000808F7
-#define KEY_PROGDOWN 	0x0008F00F
-#define KEY_SIX		 	0x000810EF
-#define KEY_EIGHT	 	0x000850AF
-#define KEY_BACK	 	0x0008827D
+struct ircstruct{
+    unsigned int sb_pulse;
+    unsigned int sb_space;
+    unsigned int adress;
+    unsigned int command;
+    unsigned int stop;
+    };
+
+struct ircstruct *ircode;
+
 
 int main( int argc, char *argv[] )
 {
 	int file_desc, ret_val;
-
-	int hexcode = 0x00;
 
 	struct sched_param param;                                                   
                                                                                 
@@ -30,42 +33,21 @@ int main( int argc, char *argv[] )
         return EXIT_FAILURE;                                                     
     }                                     
 	
-   	if ( argc < 2 ) {
-      printf("Benötige mindesten 1 Argument!\n");
-      printf("Aufruf: %s <KEY_BUTTON>...\n", *argv);
+   	if ( argc < 3 ) {
+      printf("Benötige mindesten 2 Argumente!\n");
+      printf("Aufruf: %s <Config> <KEY_BUTTON>...\n", *argv);
       return EXIT_FAILURE;
    	}
 	
+    ircode = malloc(sizeof(struct ircstruct));
 
-	if ( (strcmp( argv[1], "KEY_MUTE" )) == 0 ) {
-	
-		hexcode = KEY_MUTE;
-	
-	} else if ( (strcmp( argv[1], "KEY_PROGUP" )) == 0 ) {
+	ircode = parse( ircode, argv );
 
-		hexcode = KEY_PROGUP;
-
-	} else if ( (strcmp( argv[1], "KEY_PROGDOWN" )) == 0 ) {
-	
-		hexcode = KEY_PROGDOWN;
-	
-	} else if ( (strcmp( argv[1], "KEY_SIX" )) == 0 ) {
-	
-		hexcode = KEY_SIX;
-	
-	} else if ( (strcmp( argv[1], "KEY_EIGHT" )) == 0 ) {
-	
-		hexcode = KEY_EIGHT;
-	
-	} else if ( (strcmp( argv[1], "KEY_BACK" )) == 0 ) {
-	
-		hexcode = KEY_BACK;
-	
-	} else {
-	
-      printf("%s: Command not found\n", argv[1]);
-      return EXIT_FAILURE;
-	}
+    printf("\nsb_pulse = %i", ircode->sb_pulse );
+    printf("\nsb_space = %i", ircode->sb_space );
+    printf("\nadress = %i", ircode->adress );
+    printf("\ncommand = %i", ircode->command );
+    printf("\nstop = %i\n", ircode->stop );
 
 	file_desc = open(DEVICE_FILE_NAME, 0);
 
@@ -74,7 +56,7 @@ int main( int argc, char *argv[] )
 		exit(-1);
 	}
 
-	ret_val = ioctl(file_desc, 42, hexcode );
+	ret_val = ioctl(file_desc, 77, &ircode );
 
 	if (ret_val < 0) {
 		printf("ioctl_set_msg failed:%d\n", ret_val);
