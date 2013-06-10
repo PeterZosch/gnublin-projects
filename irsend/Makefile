@@ -5,7 +5,7 @@ SRCPATH = src/
  
 $(NAME): 
 
-		gcc -Wall $(SRCPATH)irsend.c -o $@
+		gcc -Wall $(SRCPATH)*.c -o $@
 
 clean:
 		rm -f $(NAME)
