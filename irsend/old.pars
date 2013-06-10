@@ -1,0 +1,155 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+int parsing( char *, int tab);
+
+int main( int argc, char *argv[] )
+{
+	char buffer[256] = {0};
+	char sb_pulse[256] = {0};
+	char sb_space[256] = {0};
+	char adress[256] = {0};
+	char command[256] = {0};
+	char end[256] = {0};
+
+	int i = 0;
+	int j = 0;
+	int tab = 0;
+
+	char valueBuffer[10] = {0};
+	int isb_pulse = 0x0;
+	int isb_space = 0x0;
+	int hadress = 0x0;
+	int hcommand = 0x0;
+	int hend = 0x0;
+	
+	FILE *conf;
+	conf = fopen( "sat.conf", "r");
+
+	while (fgets(buffer, 256, conf)){
+
+
+		if ( strstr( buffer, "sb_pulse") != NULL ) {
+
+			strcpy ( sb_pulse, buffer );
+		}
+
+		if ( strstr( buffer, "sb_space") != NULL ) {
+				
+			strcpy ( sb_space, buffer );
+		}
+		
+		if ( strstr( buffer, "adress") != NULL ) {
+				
+			strcpy ( adress, buffer );
+		}
+
+		if ( strstr( buffer, argv[1]) != NULL ) {
+				
+			strcpy ( command, buffer );
+		}
+		
+		if ( strstr( buffer, "end") != NULL ) {
+				
+			strcpy ( end, buffer );
+		}
+
+	}
+	
+	i = 0;
+	j = 0;
+	
+	while (command[i] != '\n')	{
+		
+			if (command[i] == '\t') {
+			
+				tab++;
+			}
+			
+			if (tab == 3) {
+
+				valueBuffer[j] = command[i];	
+				j++;
+			}			
+					
+		i++;
+	}
+	hcommand = (int)strtol(valueBuffer, NULL, 0);
+
+	i = 0;
+	j = 0;
+	tab = 0;
+	
+	while (sb_pulse[i] != '\n')	{
+		
+			if (sb_pulse[i] == '\t') {
+				tab++;
+			}
+			
+			if (tab == 2) {
+	
+				valueBuffer[j] = sb_pulse[i];	
+				j++;
+			}			
+					
+		i++;
+	}
+
+	isb_pulse = (int)strtol(valueBuffer, NULL, 0);
+	
+	i = 0;
+	j = 0;
+	tab = 0;
+	
+	while (sb_space[i] != '\n')	{
+		
+			if (sb_space[i] == '\t') {
+				tab++;
+			}
+			
+			if (tab == 2) {
+	
+				valueBuffer[j] = sb_space[i];	
+				j++;
+			}			
+					
+		i++;
+	}
+
+	isb_space = (int)strtol(valueBuffer, NULL, 0);
+
+
+	printf("\ncommand = %i\n", hcommand );
+	printf("\nsb_pulse = %i\n", isb_pulse );
+
+	return 0;
+}
+
+int parsing( char *label, int x ) 
+{
+	int i = 0;
+	int j = 0;
+	int tab = 0;
+
+	char valueBuffer[10] = {0};
+	int value = 0;
+	
+	while (label[i] != '\n')	{
+		
+			if (label[i] == '\t') {
+			
+				tab++;
+			}
+			
+			if (tab == x) {
+
+				valueBuffer[j] = label[i];	
+				j++;
+			}			
+					
+		i++;
+	}
+	value = (int)strtol(valueBuffer, NULL, 0);
+	
+	return value;

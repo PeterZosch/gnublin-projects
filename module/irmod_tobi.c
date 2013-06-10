@@ -18,16 +18,20 @@
 #define MAJOR_NUM 240
 
 struct ircstruct{
-		unsigned int sb_pulse;
-		unsigned int sb_space;
+		unsigned int header;
 		unsigned int adress;
 		unsigned int command;
-		unsigned int stop;
+		unsigned int end;
 };
+
+unsigned int h = 0;
+unsigned int a = 0;
+unsigned int c = 0;
+unsigned int e = 0;
 
 /*struct ircstruct ircode;*/
 
-static void ircode_out( struct ircstruct *ircode);
+static void ircode_out( unsigned long hexcode );
 static int pulse_send( unsigned long lenght );
 static void space_send( unsigned long slenght );
 static void ircode_in( void );
@@ -69,7 +73,7 @@ static void space_send( unsigned long slenght )
 
 }
 
-static void ircode_out( struct ircstruct *ircode )
+static void ircode_out( unsigned long hexcode )
 {
 	int i = 0;
 	int binary = 0;
@@ -78,12 +82,12 @@ static void ircode_out( struct ircstruct *ircode )
 	
 	spin_lock_irqsave( &spinl , cpuflags );
 
-	pulse_send( ircode->sb_pulse );
-	space_send( ircode->sb_space );
+	pulse_send( 9000 );
+	space_send( 4500 );
 
- 	for ( i = 16 ; i >= 0 ; i-- ) {
+ 	for ( i = 31 ; i >= 0 ; i-- ) {
 
-        binary = ( ircode->adress >> i ) & 1;
+        binary = ( hexcode >> i ) & 1;
 
 		if ( binary ) {
 			
@@ -95,29 +99,8 @@ static void ircode_out( struct ircstruct *ircode )
 			pulse_send( 510 );
 			space_send( 560 );
 		}
-	
 
 	}
-
-	    for ( i = 16 ; i >= 0 ; i-- ) {
-
-        binary = ( ircode->command >> i ) & 1;
-
-        if ( binary ) {
-
-            pulse_send( 510 );
-            space_send( 1690 );
-
-        } else {
-
-            pulse_send( 510 );
-            space_send( 560 );
-        }
-    
-
-    }
-
-	pulse_send( ircode->stop );
 
 	spin_unlock_irqrestore( &spinl , cpuflags );
 }
@@ -145,28 +128,37 @@ static void ircode_in( void )
 static int device_ioctl( struct inode *inode, struct file *file,
 					unsigned int cmd, unsigned long ioctl_param)
 {
+	int rc;
+	struct ircstruct *ircode = kmalloc(sizeof(struct ircstruct), GFP_DMA);
 
-	struct ircstruct *ircode = kmalloc( sizeof(struct ircstruct), GFP_DMA );
-
-	int rc;	
+	
 
 	switch( cmd )
 	{
+		case 42:
+			ircode_out( ioctl_param );
+			break;
 		case 69:
 			ircode_in();
 			break;
-		case 42:
-			if (copy_from_user( ircode, (void *)ioctl_param,
-								 sizeof(struct ircstruct)) != 0 )
-				printk( KERN_INFO " Copy from userspace failed.\n" );
-				return -EFAULT;
+		case 77:
+		
+		rc = copy_from_user( ircode, (void *)ioctl_param, sizeof(struct ircstruct));
+		h = ircode->header;
+   	 	a = ircode->adress;
+   		c = ircode->command;
+	    e = ircode->end;
 
-			ircode_out( ircode );
 			break;
 		default:
 			printk( KERN_INFO " unknown ioctl commando.\n" );
 			break;
 	}
+
+    printk(KERN_INFO "\nheader = %i", ircode->header);
+    printk(KERN_INFO "\nadress = %i", ircode->adress);
+    printk(KERN_INFO "\ncommand = %i", ircode->command);
+    printk(KERN_INFO "\nend = %i", ircode->end);
 
 	return 0;
 }
