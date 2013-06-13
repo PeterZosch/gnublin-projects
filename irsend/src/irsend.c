@@ -10,23 +10,15 @@
 #define DEVICE_FILE_NAME "/dev/ir2gpio"
 #define N 32
 
-struct ircstruct{
-    unsigned int sb_pulse;
-    unsigned int sb_space;
-    unsigned int adress;
-    unsigned int command;
-    unsigned int stop;
-    };
-
-struct ircstruct *ircode;
-
 
 int main( int argc, char *argv[] )
 {
 	int file_desc, ret_val;
 
 	struct sched_param param;                                                   
-                                                                                
+	
+	struct ircstruct ircode;
+	    
     param.sched_priority = 99;                                                  
     if (sched_setscheduler(0, SCHED_FIFO, & param) != 0) {                      
         perror("sched_setscheduler");                                           
@@ -39,16 +31,19 @@ int main( int argc, char *argv[] )
       return EXIT_FAILURE;
    	}
 	
-    ircode = malloc(sizeof(struct ircstruct));
+	ret_val = parse( &ircode, argv );
 
-	ircode = parse( ircode, argv );
+	if (ret_val < 0) {
+		
+		return EXIT_FAILURE;
+	}
 
-    printf("\nsb_pulse = %i", ircode->sb_pulse );
-    printf("\nsb_space = %i", ircode->sb_space );
-    printf("\nadress = %i", ircode->adress );
-    printf("\ncommand = %i", ircode->command );
-    printf("\nstop = %i\n", ircode->stop );
-
+    printf("\nsb_pulse = %i", ircode.sb_pulse );
+    printf("\nsb_space = %i", ircode.sb_space );
+    printf("\nadress = %i", ircode.adress );
+    printf("\ncommand = %i", ircode.command );
+    printf("\nstop = %i\n", ircode.stop );
+/*
 	file_desc = open(DEVICE_FILE_NAME, 0);
 
 	if (file_desc < 0) {
@@ -62,5 +57,6 @@ int main( int argc, char *argv[] )
 		printf("ioctl_set_msg failed:%d\n", ret_val);
 		exit(-1);
 	}
+*/
 		return 0;
 }
