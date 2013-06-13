@@ -30,7 +30,7 @@ struct ircstruct{
 static void ircode_out( struct ircstruct *ircode);
 static int pulse_send( unsigned long lenght );
 static void space_send( unsigned long slenght );
-static void ircode_in( void );
+//static void ircode_in( void );
 static int device_ioctl( struct inode *inode, struct file *file,
                         unsigned int cmd, unsigned long ioctl_param);
 
@@ -43,7 +43,12 @@ static int pulse_send( unsigned long lenght )
     flag = 1;
 	act = 0;
 
-   	while ( act <= lenght ) {
+/* 	ca 1us zusaetzliche Zeit bedingt durch while schleife
+	daher wird mit lenght/t die haeufigkeit der zu durchlaufenden
+	while-schleife ermittelt und von der eigentlichen pulse zeit
+	abgezogen */
+
+    while ( act <= ( lenght - (lenght / t) ) ) {
 
         gpio_set_value( GPIO_GPIO11, flag );
 	
@@ -53,8 +58,6 @@ static int pulse_send( unsigned long lenght )
 
        	flag = !flag;
 	}
-	
-    gpio_set_value( GPIO_GPIO11, 0 );
 	return 0;
 
 }
@@ -64,9 +67,16 @@ static void space_send( unsigned long slenght )
 {
 
 	gpio_set_value( GPIO_GPIO11, 0 );
-	
+
+	if ( slenght < 2000 ) {	
+
 		udelay( slenght );
 
+	} else {
+
+		mdelay( (slenght / 1000) );
+
+	}	
 }
 
 static void ircode_out( struct ircstruct *ircode )
@@ -76,52 +86,80 @@ static void ircode_out( struct ircstruct *ircode )
     unsigned long cpuflags;
 	spinlock_t spinl;
 	
+	unsigned int isb_pulse;
+	unsigned int isb_space;
+	unsigned int hadress;
+	unsigned int hcommand;
+	unsigned int istop;
+	
+	isb_pulse = ircode->sb_pulse;
+	isb_space = ircode->sb_space;
+	hadress = ircode->adress;
+	hcommand = ircode->command;
+	istop = ircode->stop;
+/*
+	printk( KERN_INFO "sturcht:\n" );
+	printk( KERN_INFO "%i\n", ircode->sb_pulse );
+	printk( KERN_INFO "%i\n", ircode->sb_space );
+	printk( KERN_INFO "%i\n", ircode->adress);
+	printk( KERN_INFO "%i\n", ircode->command );
+	printk( KERN_INFO "%i\n", ircode->stop );
+
+	printk( KERN_INFO "integer:\n" );
+	printk( KERN_INFO "%i\n", isb_pulse );
+	printk( KERN_INFO "%i\n", isb_space );
+	printk( KERN_INFO "%i\n", hadress);
+	printk( KERN_INFO "%i\n", hcommand );
+	printk( KERN_INFO "%i\n", istop );
+*/
 	spin_lock_irqsave( &spinl , cpuflags );
 
-	pulse_send( ircode->sb_pulse );
-	space_send( ircode->sb_space );
+	pulse_send( isb_pulse );
+	space_send( isb_space );
 
- 	for ( i = 16 ; i >= 0 ; i-- ) {
+ 	for ( i = 15 ; i >= 0 ; i-- ) {
 
-        binary = ( ircode->adress >> i ) & 1;
+        binary = ( hadress >> i ) & 1;
 
 		if ( binary ) {
 			
-			pulse_send( 510 );
+			pulse_send( 560 );
 			space_send( 1690 );
 
 		} else {
 
-			pulse_send( 510 );
+			pulse_send( 560 );
 			space_send( 560 );
 		}
 	
 
 	}
 
-	    for ( i = 16 ; i >= 0 ; i-- ) {
+    for ( i = 15 ; i >= 0 ; i-- ) {
 
-        binary = ( ircode->command >> i ) & 1;
+        binary = ( hcommand >> i ) & 1;
 
         if ( binary ) {
 
-            pulse_send( 510 );
+            pulse_send( 560 );
             space_send( 1690 );
 
         } else {
 
-            pulse_send( 510 );
+            pulse_send( 560 );
             space_send( 560 );
         }
     
 
     }
 
-	pulse_send( ircode->stop );
+	pulse_send( istop );
 
 	spin_unlock_irqrestore( &spinl , cpuflags );
-}
 
+	gpio_set_value( GPIO_GPIO11, 0 );
+}
+/*
 static irqreturn_t irq_handler( int irq, void *dev_id )
 {
 
@@ -138,9 +176,10 @@ static irqreturn_t irq_handler( int irq, void *dev_id )
 
 static void ircode_in( void )
 {
-/*	request_irq( IRQ_PIN14, irq_handler, IRQF_SHARED,
+	request_irq( IRQ_PIN14, irq_handler, IRQF_SHARED,
 				"ir2gpio",(void *)EVT_GPIO14 );
-*/}
+}
+*/
 
 static int device_ioctl( struct inode *inode, struct file *file,
 					unsigned int cmd, unsigned long ioctl_param)
@@ -148,26 +187,34 @@ static int device_ioctl( struct inode *inode, struct file *file,
 
 	struct ircstruct *ircode = kmalloc( sizeof(struct ircstruct), GFP_DMA );
 
-	int rc;	
-
 	switch( cmd )
 	{
-		case 69:
-			ircode_in();
-			break;
+//		case 69:
+//			ircode_in();
+//			break;
+
 		case 42:
 			if (copy_from_user( ircode, (void *)ioctl_param,
-								 sizeof(struct ircstruct)) != 0 )
+								sizeof(struct ircstruct)) != 0 ) {
+
 				printk( KERN_INFO " Copy from userspace failed.\n" );
 				return -EFAULT;
+			}
 
-			ircode_out( ircode );
+		ircode_out( ircode );
 			break;
+
 		default:
 			printk( KERN_INFO " unknown ioctl commando.\n" );
 			break;
 	}
-
+/*
+	printk( KERN_INFO "%i\n", ircode->sb_pulse );
+	printk( KERN_INFO "%i\n", ircode->sb_space );
+	printk( KERN_INFO "%i\n", ircode->command );
+	printk( KERN_INFO "%i\n", ircode->adress);
+	printk( KERN_INFO "%i\n", ircode->stop );
+*/	
 	return 0;
 }
 
@@ -187,7 +234,8 @@ int init_module(void)
 
 	printk ( KERN_INFO "ir2gpio init.\n" );
 	
-	int register_value, reqerr;
+	//int register_value, reqerr;
+	int register_value;
 
 	register_value = register_chrdev( MAJOR_NUM, DEVICE_NAME, &fops );
 
@@ -199,12 +247,12 @@ int init_module(void)
 
 	printk(KERN_INFO "ir2gpio driver registered with major number %d.\n",
 			MAJOR_NUM );
-	
+/*	
 	reqerr =	request_irq( IRQ_PIN14, irq_handler, IRQF_SHARED,
                 "ir2gpio",(void *)EVT_GPIO14 );
 
 	printk(KERN_INFO "ir2gpio returnvalue from irq_request = %i\n", reqerr );
-
+*/
 	return 0;
 
 
@@ -214,7 +262,7 @@ void cleanup_module(void)
 {
 	printk ( KERN_INFO "ir2gpio exit.\n" );
 	
-	free_irq( IRQ_PIN14, (void *)EVT_GPIO14 );
+//	free_irq( IRQ_PIN14, (void *)EVT_GPIO14 );
 
 	unregister_chrdev( MAJOR_NUM, DEVICE_NAME );
 }
