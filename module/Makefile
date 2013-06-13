@@ -1,4 +1,4 @@
-obj-m += irmod.o
+obj-m += irmod32.o
 
 KDIR := /usr/src/linux-2.6.33-lpc313x/
 
