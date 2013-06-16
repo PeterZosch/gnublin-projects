@@ -1,0 +1,16 @@
+irsend:
+	make
+	danach muss die binary und /user/bin kopiert werden damit sie global
+	ausführbar ist
+
+irmod:
+	make
+	insmod irmod.ko
+	mknod -m 666 /dev/ir2gpio c 240 0 (666 wird benötigt damit vom Webserver 
+		gesteuert werden kann)
+
+conf:
+	config files in /etc/ircube kopieren
+
+php:
+	index.php unter /var/www kopieren
