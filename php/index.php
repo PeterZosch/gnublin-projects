@@ -1,9 +1,9 @@
 <title>irCube by Theile and Koch Productions</title>
 <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0;"/>
 <form action="" method="post">
-<select name="remotes" id="remotes">
-  <option value="sat">SAT</option>
-  <option value="alx">ALX</option>
+<select name="remotes"> 
+  <option value="sat"<?php echo($_POST['remotes']=='sat'?' selected="selected"':'');?>>SAT</option>
+  <option value="alx"<?php echo($_POST['remotes']=='alx'?' selected="selected"':'');?>>ALX</option>
 </select>
 <br></br>
 <input type="submit" name="button1" value="MUTE">
