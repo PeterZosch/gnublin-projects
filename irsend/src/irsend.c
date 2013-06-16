@@ -15,15 +15,16 @@ int main( int argc, char *argv[] )
 {
 	int file_desc, ret_val;
 
-	struct sched_param param;                                                   
-	
 	struct ircstruct ircode;
+/*
+	struct sched_param param;                                                   
 	    
     param.sched_priority = 99;                                                  
     if (sched_setscheduler(0, SCHED_FIFO, & param) != 0) {                      
         perror("sched_setscheduler");                                           
         return EXIT_FAILURE;                                                     
     }                                     
+*/
 	
    	if ( argc < 3 ) {
       printf("Benötige mindesten 2 Argumente!\n");
@@ -38,12 +39,6 @@ int main( int argc, char *argv[] )
 		return EXIT_FAILURE;
 	}
 
-    printf("\nsb_pulse = %i", ircode.sb_pulse );
-    printf("\nsb_space = %i", ircode.sb_space );
-    printf("\nadress = %i", ircode.adress );
-    printf("\ncommand = %i", ircode.command );
-    printf("\nstop = %i\n", ircode.stop );
-/*
 	file_desc = open(DEVICE_FILE_NAME, 0);
 
 	if (file_desc < 0) {
@@ -51,12 +46,12 @@ int main( int argc, char *argv[] )
 		exit(-1);
 	}
 
-	ret_val = ioctl(file_desc, 77, &ircode );
+	ret_val = ioctl(file_desc, 42, &ircode );
 
 	if (ret_val < 0) {
 		printf("ioctl_set_msg failed:%d\n", ret_val);
 		exit(-1);
 	}
-*/
+
 		return 0;
 }
