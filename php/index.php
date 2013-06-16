@@ -1,10 +1,11 @@
 <title>irCube by Theile and Koch Productions</title>
 <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0;"/>
+<form action="" method="post">
 <select name="remotes" id="remotes">
   <option value="sat">SAT</option>
   <option value="alx">ALX</option>
 </select>
-<form action="" method="post">
+<br></br>
 <input type="submit" name="button1" value="MUTE">
 <input type="submit" name="button2" value="VOL UP">
 <input type="submit" name="button3" value="VOL DOWN">
@@ -21,20 +22,19 @@
 <?php
 
 $remote = $_POST['remotes'];
-echo $remote;
  
 if($_POST['button1'] != '') {
-	$output = "<pre>".shell_exec("irsend alx MUTE")."</pre>";
+	$output = "<pre>".shell_exec("irsend $remote MUTE")."</pre>";
 	echo $output;
 }
 
 if($_POST['button2'] != '') {
-	$output = "<pre>".shell_exec("irsend alx VOLUP")."</pre>";
+	$output = "<pre>".shell_exec("irsend $remote VOLUP")."</pre>";
 	echo $output;
 }
 
 if($_POST['button3'] != '') {
-	$output = "<pre>".shell_exec("irsend alx VOLDOWN")."</pre>";
+	$output = "<pre>".shell_exec("irsend $remote VOLDOWN")."</pre>";
 	echo $output;
 }
 ?>
