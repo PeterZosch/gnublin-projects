@@ -31,6 +31,7 @@ int parse ( struct ircstruct *ircode, char *argv[] )
 */
 	char argv_par[32] = {0};
 	char confName[6]= ".conf";
+	char pathName[13]= "/etc/ircube/";
 	
 	while ( argv[1][i] != '\0' ) {
 
@@ -38,13 +39,14 @@ int parse ( struct ircstruct *ircode, char *argv[] )
 		i++;
 	}
 	argv_par[i] = '\0';
-		
+
 	strcat(argv_par, confName);
+	strcat(pathName, argv_par);
 
 /******************************************************************************/
 	
 	FILE *config;
-	config = fopen( argv_par, "r");
+	config = fopen( pathName, "r");
 
 	if ( NULL == config ) {
 
@@ -83,19 +85,11 @@ int parse ( struct ircstruct *ircode, char *argv[] )
 
 	}
 
-	printf("\nfound = %i\n", found);
 	if ( !found ) {
-
 		printf("Command %s in file '%s' not found\n", argv[2], argv_par );
 		return -1;
 	}
-/*
-	isb_pulse = parsing(sb_pulse, 2);	
-	isb_space = parsing(sb_space, 2);	
-	hadress = parsing(adress, 3);	
-	hcommand = parsing(command, 3);	
-	istop = parsing(stop, 3);	
-*/
+	
 	isb_pulse = parsing(sb_pulse);	
 	isb_space = parsing(sb_space);	
 	hadress = parsing(adress);	
